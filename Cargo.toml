@@ -1,7 +1,19 @@
 [package]
-name = "WarAndFate"
+name = "LungsOfCopper1"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-bevy = "0.20.0"
+bevy = { version = "0.20.0", default-features = false, features = [
+    "bevy_winit",          # 窗口和事件循环
+    "bevy_render",         # 核心渲染管线
+    "bevy_core_pipeline",  # 基础渲染管线
+    "bevy_sprite",         # 2D 精灵渲染
+    "bevy_ui",             # UI 系统
+    "bevy_text",           # 文本渲染
+    "bevy_asset",          # 资源加载
+    "bevy_log",            # 日志
+    "multi_threaded",      # 多线程支持
+    "png",                 # PNG 图片格式支持
+    "bevy_state",
+] }
