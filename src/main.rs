@@ -1,7 +1,14 @@
 use bevy::a11y::ActionRequest;
 use bevy::app::App;
+use bevy::color::palettes::css::{DARK_GREEN, SEA_GREEN};
 use bevy::DefaultPlugins;
+use bevy::log::tracing_subscriber::util::SubscriberInitExt;
 use bevy::prelude::*;
+use bevy::text::LineHeight;
+
+const TILE_BORDER_COLOR: Color = Color::Srgba(SEA_GREEN);
+const BACKGROUND_COLOR: Color = Color::Srgba(DARK_GREEN);
+
 
 #[derive(Debug,Clone,Copy,Default,Eq,PartialEq,Hash, States)]
 enum GameState {
@@ -10,7 +17,37 @@ enum GameState {
     Playing,
 }
 
-// fn text_button(label: &'static str, action: ButtonAc)
+fn text_button(label: &'static str, action: ButtonAction) -> impl Bundle {
+    (
+        action,
+        Node {
+            min_width: px(144),
+            border: px(3).all(),
+            border_radius: px(8).into(),
+            box_sizing: BoxSizing::ContentBox,
+            ..default()
+        },
+        BorderColor::all(TILE_BORDER_COLOR),
+        BackgroundColor(BACKGROUND_COLOR),
+        Text::new(label),
+        TextFont::from_font_size(24.0),
+        TextLayout::justify(Justify::Center),
+        LineHeight::Px(40.),
+    )
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Difficulty {
+    Easy,
+    Normal,
+    Hard,
+}
+
+#[derive(Component, Clone, Copy)]
+enum ButtonAction {
+    NewGame(Difficulty),
+    Menu,
+}
 
 fn setup_menu(mut commands: Commands) {
     commands.spawn((
@@ -31,13 +68,20 @@ fn setup_menu(mut commands: Commands) {
                 flex_direction: FlexDirection::Column,
                 row_gap: px(10),
                 ..default()
-            },
-            )
+                },
+                children![
+                text_button("easy", ButtonAction::NewGame(Difficulty::Easy)),
+                text_button("normal", ButtonAction::NewGame(Difficulty::Normal)),
+                text_button("hard", ButtonAction::NewGame(Difficulty::Hard)),
+            ],
+            ),
         ],
-        // children![
-        //     text_button("easy")
-        // ]
+
         ));
+}
+
+fn setup(mut commands: Commands) {
+    commands.spawn(Camera2d);
 }
 
 fn main() {
@@ -45,6 +89,7 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .init_state::<GameState>()
+        .add_systems(Startup, setup)
         .add_systems(OnEnter(GameState::Menu),setup_menu)
         .run();
 }
