@@ -3,5 +3,12 @@ name = "TestForBreakout"
 version = "0.1.0"
 edition = "2024"
 
+[features]
+default = []
+# 本项目自定义特性，转发到 bevy 对应特性；
+# 启用后 `cargo run --features bevy_debug_stepping` 才会真正打开 stepping 调试 UI。
+bevy_debug_stepping = ["bevy/bevy_debug_stepping"]
+debug = ["bevy/debug"]
+
 [dependencies]
 bevy = "0.20.1"
