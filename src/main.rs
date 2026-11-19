@@ -121,6 +121,86 @@ impl std::ops::Index<IVec2> for MineField {
         &self.tiles[index]
     }
 }
+// 对minefield类型实现二维可变索引
+impl std::ops::IndexMut<IVec2> for MineField {
+    fn index_mut(&mut self, tile: IVec2) -> &mut Self::Output {
+        let index = self.get(tile).unwrap();
+        &mut self.tiles[index]
+    }
+}
+
+// 游戏难度
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Difficulty {
+    Easy,
+    Normal,
+    Hard,
+}
+// 简单10*15，15个地雷，中等20*15，50，困难25*15，75个
+impl Difficulty {
+    fn field(self) -> MineField {
+        match self {
+            Difficulty::Easy => MineField::new(15, 10, 15),
+            Difficulty::Normal => MineField::new(20, 15, 50),
+            Difficulty::Hard => MineField::new(25, 15, 75),
+        }
+    }
+}
+
+// 游戏状态
+#[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, States)]
+enum GameState {
+    #[default]
+    Menu,
+    Playing,
+}
+
+// 游戏资源，有地雷区和游戏结束标志两个
+#[derive(Resource)]
+struct Game {
+    field: MineField,
+    game_over: bool,
+}
+// 为游戏添加默认方法，默认正常难度+没有结束
+impl Default for Game {
+    fn default() -> Self {
+        Self {
+            field: Difficulty::Normal.field(),
+            game_over: false,
+        }
+    }
+}
+// todo!!暂时没看到这个是干什么用的
+#[derive(Component)]
+struct GameRoot;
+// todo!!暂时没看到这个是干什么用的
+#[derive(Component)]
+struct TileCell(IVec2);
+// 按钮的作用，两类，选择难度和回到主菜单
+#[derive(Component, Clone, Copy)]
+enum ButtonAction {
+    NewGame(Difficulty),
+    Menu,
+}
+// 按钮
+fn text_button(label: &'static str, action: ButtonAction) -> impl Bundle {
+    (
+        action,
+        Node {
+            min_width: px(144),
+            border: px(3).all(),
+            border_radius: px(8).into(),
+            box_sizing: BoxSizing::ContentBox,
+            ..default()
+        },
+        BorderColor::all(TILE_BORDER_COLOR),
+        BackgroundColor(BACKGROUND_COLOR),
+        Text::new(label),
+        TextFont::from_font_size(24.0),
+        TextLayout::justify(Justify::Center),
+        LineHeight::Px(40.),
+    )
+}
 
 
 fn main() {
